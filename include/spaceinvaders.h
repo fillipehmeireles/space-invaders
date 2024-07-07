@@ -11,9 +11,11 @@
 #define MAX_BULLETS 5
 #define CALIBER 4
 #define PLAYER_CALIBER 8
+#define PLAYER_MAX_LIFE 3
 #define MAX_ENEMIES 25
 #define MAX_ENEMIES_ROWS 5
 #define MAX_ENEMIES_PER_ROW 5
+
 typedef struct Position
 {
     float x;
@@ -32,6 +34,17 @@ void movePlayer(SpaceCraft*, KeyboardKey);
 void initEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
 void drawEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
 void moveEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
+void checkEnemyScore(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
+
+typedef struct Heart
+{
+    Texture2D sprite;
+    Position position;
+    bool active;
+} Heart;
+
+void initHearts(Heart[], int);
+void drawHearts(Heart[], int);
 typedef struct Bullet
 {
     Rectangle rec;
@@ -42,7 +55,6 @@ void initBullets(Bullet[]);
 void shootBullet(Bullet[], Position);
 void updateBullets(Bullet[]);
 void drawBullet(Bullet[]);
-
 
 void checkEnemyShooted(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW], Bullet[MAX_BULLETS]);
 
