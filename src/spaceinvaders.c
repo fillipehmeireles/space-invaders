@@ -32,10 +32,12 @@ typedef struct SpaceCraft
 } SpaceCraft;
 void drawPlayerSpaceCraft();
 void movePlayer(SpaceCraft *, KeyboardKey);
-void initEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
-void drawEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
-void moveEnemies(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
-void checkEnemyScore(SpaceCraft[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]);
+
+SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW];
+void initEnemies();
+void drawEnemies();
+void moveEnemies();
+void checkEnemyScore();
 void updateEnemyBullets();
 typedef struct Heart
 {
@@ -148,15 +150,16 @@ void checkEnemyShooted(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW]
                 {
                     if (CheckCollisionRecs(bullets[k].rec, enemies[i][j].rec))
                     {
-                        enemies[i][j].lifes -= 1;
-                        enemies[i][j].color = BLUE;
-                        bullets[k].shotted = false;
-                        if (enemies[i][j].lifes <= 0)
+if (enemies[i][j].lifes <= 0)
                         {
                             score++;
                             setScoreText();
+                            break;
                         }
-                    }
+
+                        enemies[i][j].lifes -= 1;
+                        bullets[k].shotted = false;
+                                            }
                 }
             }
         }
@@ -194,21 +197,21 @@ void movePlayer(SpaceCraft *player, KeyboardKey direction)
     player->rec.x += step;
 }
 
-void initEnemies(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW])
+void initEnemies()
 {
     Texture2D enemy_sprite = LoadTexture("resources/naridrin.png");
     for (int i = 0; i < MAX_ENEMIES_ROWS; i++)
     {
         for (int j = 0; j < MAX_ENEMIES_PER_ROW; j++)
         {
-            enemies[i][j] = (SpaceCraft){.rec = (Rectangle){.x = 0, .y = 0, .width = 30, .height = 30}, .color = YELLOW, .lifes = 2, .step = CALIBER / 2};
-            enemies[i][j].rec = (Rectangle){.x = ((float)game_screen.width / 2 - (enemies[i][j].rec.x + (enemies[i][j].rec.width + (enemies[i][j].rec.width * 2)) * j)), .y = ((float)game_screen.height / 2 - ((enemies[i][j].rec.height + 10) * i)), .width = enemies[i][j].rec.width, .height = enemies[i][j].rec.height};
+            enemies[i][j] = (SpaceCraft){.rec = (Rectangle){.x = 0, .y = 0, .width = enemy_sprite.width * 0.1f, .height = enemy_sprite.height * 0.1f}, .color = YELLOW, .lifes = 2, .step = CALIBER / 2};
+            enemies[i][j].rec = (Rectangle){.x = ((float)game_screen.width / 2 - (enemies[i][j].rec.x + (enemies[i][j].rec.width + (enemies[i][j].rec.width * 2)) * j)), .y = ((float)game_screen.height / 2 - ((enemies[i][j].rec.height + 10) * i)), .width = enemy_sprite.width * 0.1f, .height = enemy_sprite.height * 0.1f};
             enemies[i][j].sprite = enemy_sprite;
         }
     }
 }
 
-void drawEnemies(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW])
+void drawEnemies()
 {
     for (int i = 0; i < MAX_ENEMIES_ROWS; i++)
     {
@@ -216,15 +219,13 @@ void drawEnemies(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW])
         {
             if (enemies[i][j].lifes > 0)
             {
-            //    DrawRectangle(enemies[i][j].rec.x, enemies[i][j].rec.y, enemies[i][j].rec.width, enemies[i][j].rec.height, enemies[i][j].color);
-
             DrawTextureEx(enemies[i][j].sprite, (Vector2){.x = enemies[i][j].rec.x, .y = enemies[i][j].rec.y}, 180.f, 0.1f, WHITE);
             }
         }
     }
 }
 
-void moveEnemies(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW])
+void moveEnemies()
 {
 
     for (int i = 0; i < MAX_ENEMIES_ROWS; i++)
@@ -282,7 +283,7 @@ void drawHearts(Heart hearts[], int player_max_life)
     }
 }
 
-void checkEnemyScore(SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW])
+void checkEnemyScore()
 {
     bool player_damaged = false;
     for (int i = 0; i < MAX_ENEMIES_ROWS; i++)
@@ -391,8 +392,7 @@ int start(GameScreen game_s)
     Bullet bullets[MAX_BULLETS];
     initBullets(bullets);
 
-    SpaceCraft enemies[MAX_ENEMIES_ROWS][MAX_ENEMIES_PER_ROW];
-    initEnemies(enemies);
+    initEnemies();
 
     initEnemiesBullets();
     border_right = (Rectangle){.x = game_screen.width - border_right.width, .y = 0, .width = 1, .height = game_screen.height};
@@ -448,11 +448,11 @@ int start(GameScreen game_s)
         drawHearts(player_hearts, player_spacecraft.lifes);
 
         checkEnemyShooted(enemies, bullets);
-        checkEnemyScore(enemies);
+        checkEnemyScore();
         checkEnemyScoreBullet();
 
-        drawEnemies(enemies);
-        moveEnemies(enemies);
+        drawEnemies();
+        moveEnemies();
         drawPlayerSpaceCraft();
         drawBullet(bullets);
         updateBullets(bullets);
